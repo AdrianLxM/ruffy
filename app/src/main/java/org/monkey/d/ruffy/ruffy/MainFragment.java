@@ -97,6 +97,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private int upRunning = 0;
     private int downRunning = 0;
     private int backRunning = 0;
+    private int updownRunning = 0;
+
 
     private Runnable upThread = new Runnable()
     {
@@ -155,6 +157,28 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             rtSendKey(Ruffy.Key.NO_KEY,true);
         }
     };
+
+
+    private Runnable updownThread = new Runnable()
+    {
+        @Override
+        public void run() {
+            while(updownRunning >0)
+            {
+                if(updownRunning==1) {
+                    updownRunning++;
+                    rtSendKey(Ruffy.Key.UPDOWN,true);
+                }
+                else
+                {
+                    rtSendKey(Ruffy.Key.UPDOWN,false);
+                }
+                try{sleep(200);}catch(Exception e){}
+            }
+            rtSendKey(Ruffy.Key.NO_KEY,true);
+        }
+    };
+
 
     private void sleep(long millis)
     {
@@ -389,6 +413,27 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
                     case MotionEvent.ACTION_UP:
                         backRunning=0;
+                        break;
+                }
+
+                return false;
+            }
+        });
+        Button updown = (Button) displayLayout.findViewById(R.id.pumpUpdown);
+        updown.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction())
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        if(updownRunning==0) {
+                            updownRunning = 1;
+                            scheduler.execute(updownThread);
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        updownRunning=0;
                         break;
                 }
 
