@@ -102,6 +102,7 @@ public class BTConnection {
 
     private void connect(String deviceAddress, int retry) {
 
+        this.disconnect = false;
         if(state!=0)
         {
             handler.log("in connect!");
@@ -154,8 +155,9 @@ public class BTConnection {
                     currentInput = currentConnection.getInputStream();
                     currentOutput = currentConnection.getOutputStream();
                 } catch (IOException e) {
-                    //e.printStackTrace();
+                    e.printStackTrace();
                     handler.fail("no connection possible");
+                    //return;
 
 
                     //??????????
@@ -185,7 +187,7 @@ public class BTConnection {
                 while (true) {
                     try {
                         int bytes = currentInput.read(buffer);
-                        handler.log("read "+bytes+": "+Utils.byteArrayToHexString(buffer,bytes));
+                        //handler.log("read "+bytes+": "+Utils.byteArrayToHexString(buffer,bytes));
                         handler.handleRawData(buffer,bytes);
                     } catch (Exception e) {
                         //e.printStackTrace();
@@ -198,7 +200,15 @@ public class BTConnection {
         }.start();
     }
 
+    private boolean disconnect = false;
+    public void disableWrite()
+    {
+        this.disconnect=true;
+
+    }
     public void writeCommand(byte[] key) {
+        if(disconnect)
+            return;
         List<Byte> out = new LinkedList<Byte>();
         for(Byte b : key)
             out.add(b);
@@ -217,7 +227,7 @@ public class BTConnection {
         for (i = 0; i < key.length; i++) {
             sb.append(String.format("%02X ", key[i]));
         }
-        handler.log("writing command: "+sb.toString());
+        //handler.log("writing command: "+sb.toString());
         write(ro);
     }
 
@@ -248,8 +258,6 @@ public class BTConnection {
 
     public void write(byte[] ro){
 
-        handler.log("!!!write!!!");
-
         if(this.currentConnection==null)
         {
             handler.fail("unable to write: no socket");
@@ -257,7 +265,7 @@ public class BTConnection {
         }
         try {
             currentOutput.write(ro);
-            handler.log("wrote "+ro.length+" bytes: "+Utils.byteArrayToHexString(ro,ro.length));
+            //handler.log("wrote "+ro.length+" bytes: "+Utils.byteArrayToHexString(ro,ro.length));
         }catch(Exception e)
         {
             //e.printStackTrace();

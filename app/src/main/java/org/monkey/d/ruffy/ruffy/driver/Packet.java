@@ -136,13 +136,13 @@ public class Packet {
         byte c = (byte)(command & 0x1F);
         switch (c) {
             case 20:
-                handler.log("got an id response");
+               // handler.log("got an id response");
                 if (Utils.ccmVerify(packetNoUmac, handler.getToDeviceKey(), umac, nonce)) {
                     handler.handleResponse(Response.ID,reliableFlagged,payload);
                 }
                 break;
             case 24:
-                handler.log("got a sync response ");
+               // handler.log("got a sync response ");
                 if (Utils.ccmVerify(packetNoUmac, handler.getToDeviceKey(), umac, nonce)) {
                     handler.handleResponse(Response.SYNC,reliableFlagged,payload);
                 }
@@ -157,6 +157,9 @@ public class Packet {
                 if (Utils.ccmVerify(packetNoUmac, handler.getToDeviceKey(), umac, nonce)) {
                     handler.handleResponse(Response.UNRELIABLE_DATA,reliableFlagged,payload);
                 }
+                break;
+            case 0x05:
+                //ignore ack response
                 break;
 
             case 0x06:
@@ -190,14 +193,14 @@ public class Packet {
                             break;
                     }
 
-                    handler.log( "Error in Transport Layer! ("+err+")");
+                    //handler.log( "Error in Transport Layer! ("+err+")");
                     handler.handleErrorResponse(error,err,reliableFlagged,payload);
 
                 }
                 break;
             default:
-                handler.log("not yet implemented rx command: " + command + " ( " + String.format("%02X", command));
-
+               // handler.log("not yet implemented rx command: " + command + " ( " + String.format("%02X", command));
+                break;
         }
     }
 }

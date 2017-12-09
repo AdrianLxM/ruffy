@@ -13,6 +13,7 @@ public class Application {
      */
     public static int MODE_ERROR_TRESHHOLD = 3;
 
+
     public static enum Command
     {
         COMMANDS_SERVICES_VERSION,
@@ -200,9 +201,9 @@ public class Application {
 
         sendData(payload,false,btConn);
 
-        btConn.log("/////////////////////////////////////////////////////////////////////");
-        btConn.log("send alive with seq: "+rtSeq);
-        btConn.log("/////////////////////////////////////////////////////////////////////");
+        //btConn.log("/////////////////////////////////////////////////////////////////////");
+        //btConn.log("send alive with seq: "+rtSeq);
+        //btConn.log("/////////////////////////////////////////////////////////////////////");
         rtSeq++;
         return rtSeq;
 
@@ -240,7 +241,7 @@ public class Application {
         else
             payload.put((byte) 0x48);
 
-        btConn.log("/////////////////////////////////////////////////////////////////////");
+       // btConn.log("/////////////////////////////////////////////////////////////////////");
         String k = "";
         switch (key)
         {
@@ -259,9 +260,15 @@ public class Application {
             case (byte)0xC0:
                 k="DOWN";
                 break;
+            case (byte)0xF0:
+                k="COPY";
+                break;
+            case (byte)0x33:
+                k="BACK";
+                break;
         }
-        btConn.log("send key "+k+" with seq: "+rtSeq);
-        btConn.log("/////////////////////////////////////////////////////////////////////");
+        //btConn.log("send key "+k+" with seq: "+rtSeq);
+        //btConn.log("/////////////////////////////////////////////////////////////////////");
         sendData(payload, false, btConn);
 
         rtSeq++;
@@ -269,7 +276,7 @@ public class Application {
     }
 
     public static void processAppResponse(byte[] payload, boolean reliable, AppHandler handler) {
-        handler.log("processing app response");
+        //handler.log("processing app response");
         ByteBuffer b = ByteBuffer.wrap(payload);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -277,7 +284,7 @@ public class Application {
         byte servId = b.get();
         short commId = b.getShort();
 
-        handler.log("Service ID: " + String.format("%X", servId) + " Comm ID: " + String.format("%X", commId) + " reliable: " + reliable);
+        //handler.log("Service ID: " + String.format("%X", servId) + " Comm ID: " + String.format("%X", commId) + " reliable: " + reliable);
 
         String descrip = null;
         if(reliable)
@@ -293,7 +300,7 @@ public class Application {
                     break;
                 case (short) 0xA065://something
                 case (short) 0xA095://bind
-                    handler.log("not should happen here!");
+                    //handler.log("not should happen here!");
                     break;
                 case (short) 0xA066://activate rt:
                     handler.rtModeActivated();
@@ -319,6 +326,7 @@ public class Application {
                     handler.addDisplayFrame(b);
                     break;
                 case (short) 0x0556://key answer
+                    handler.keySent(b);
                     break;
                 case (short) 0x0566://alive answer, often missed
                     break;
@@ -327,7 +335,7 @@ public class Application {
                     break;
             }
         }
-        handler.log("appProcess: "+descrip);
+        //handler.log("appProcess: "+descrip);
     }
 
     private static boolean cmdProcessError(short error, AppHandler handler) {
